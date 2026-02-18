@@ -6,9 +6,15 @@ export const metadata: Metadata = {
   title: 'AI/ML Knowledge Hub | Peter Shang',
   description: 'Comprehensive AI/ML knowledge repository — fundamentals to production-ready implementations, LLM comparisons, prompt engineering, and agentic AI systems.',
   keywords: ['AI', 'Machine Learning', 'LLM', 'Deep Learning', 'Python', 'Data Science'],
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    shortcut: '/favicon.svg',
+  },
   openGraph: {
-    title: 'AI/ML Knowledge Hub',
-    description: 'From fundamentals to production-ready AI',
+    title: 'AI/ML Knowledge Hub | Peter Shang',
+    description: 'From fundamentals to production-ready AI — algorithms, LLMs, prompt engineering, agentic systems.',
     type: 'website',
   },
 };
@@ -21,6 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
