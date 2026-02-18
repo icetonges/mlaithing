@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-purple: #8B5CF6;
+  --brand-gold: #F5C518;
+}
