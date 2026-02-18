@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 :root {
-  --brand-purple: #8B5CF6;
-  --brand-gold: #F5C518;
+  --brand-purple: #6D28D9;
+  --brand-gold: #F59E0B;
+}
+
+body {
+  background-color: #F9FAFB; /* Softer background */
 }

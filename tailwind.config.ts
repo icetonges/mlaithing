@@ -6,12 +6,13 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          purple: '#8B5CF6', // Primary AI/ML Brand
-          gold: '#F5C518',   // Site Accent
+          purple: '#6D28D9', // Deeper, more professional purple
+          gold: '#F59E0B',   // Richer gold
+          dark: '#1E1B4B',
         },
       },
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/typography')], // <--- This is key for nice text
 };
 export default config;
