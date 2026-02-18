@@ -14,7 +14,6 @@ Provide concise, accurate, technically precise answers. Use code examples when h
 Format responses in markdown when appropriate. Be direct and practical.`;
 
 export async function POST(req: NextRequest) {
-  // ✅ Read body ONCE - req.json() is a one-time stream; calling it twice always fails
   let body: any = {};
   try {
     body = await req.json();
@@ -23,41 +22,9 @@ export async function POST(req: NextRequest) {
   }
 
   const { messages = [], system, temperature = 0.7, max_tokens = 1000 } = body;
+  const systemPrompt = system || SYSTEM_PROMPT;
 
-  // ── Attempt 1: Anthropic Claude ──────────────────────────────────────────
-  const anthropicKey = process.env.ANTHROPIC_API_KEY;
-  if (anthropicKey) {
-    try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'x-api-key': anthropicKey,
-          'anthropic-version': '2023-06-01',
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'claude-3-5-sonnet-20241022',
-          max_tokens,
-          system: system || SYSTEM_PROMPT,
-          messages: messages.slice(-20),
-        }),
-      });
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err?.error?.message || `Anthropic HTTP ${response.status}`);
-      }
-
-      const data = await response.json();
-      const content = data.content?.[0]?.text ?? '';
-      return NextResponse.json({ content, model: 'claude-3-5-sonnet' });
-    } catch (err: any) {
-      console.error('[Claude] error:', err.message);
-      // fall through to Gemini
-    }
-  }
-
-  // ── Attempt 2: Google Gemini fallback ────────────────────────────────────
+  // ── 1st: Google Gemini (FREE — always try first) ─────────────────────────
   const geminiKey = process.env.GOOGLE_GEMINI_API_KEY;
   if (geminiKey) {
     try {
@@ -67,12 +34,15 @@ export async function POST(req: NextRequest) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            systemInstruction: { parts: [{ text: system || SYSTEM_PROMPT }] },
+            systemInstruction: { parts: [{ text: systemPrompt }] },
             contents: messages.map((m: any) => ({
               role: m.role === 'assistant' ? 'model' : 'user',
               parts: [{ text: m.content }],
             })),
-            generationConfig: { maxOutputTokens: max_tokens, temperature },
+            generationConfig: {
+              maxOutputTokens: max_tokens,
+              temperature,
+            },
           }),
         }
       );
@@ -87,23 +57,92 @@ export async function POST(req: NextRequest) {
         gemData.candidates?.[0]?.content?.parts?.[0]?.text ?? 'No response generated.';
       return NextResponse.json({ content, model: 'gemini-2.0-flash' });
     } catch (err: any) {
-      console.error('[Gemini] error:', err.message);
+      console.error('[Gemini] error — falling back to Claude:', err.message);
     }
   }
 
-  // ── No API keys configured ────────────────────────────────────────────────
+  // ── 2nd: Anthropic Claude (fallback) ─────────────────────────────────────
+  const anthropicKey = process.env.ANTHROPIC_API_KEY;
+  if (anthropicKey) {
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': anthropicKey,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens,
+          system: systemPrompt,
+          messages: messages.slice(-20),
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error?.message || `Anthropic HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+      const content = data.content?.[0]?.text ?? '';
+      return NextResponse.json({ content, model: 'claude-3-5-sonnet' });
+    } catch (err: any) {
+      console.error('[Claude] error:', err.message);
+    }
+  }
+
+  // ── 3rd: OpenAI (last resort) ────────────────────────────────────────────
+  const openaiKey = process.env.OPENAI_API_KEY;
+  if (openaiKey) {
+    try {
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${openaiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          max_tokens,
+          temperature,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...messages.slice(-20),
+          ],
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error?.message || `OpenAI HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+      const content = data.choices?.[0]?.message?.content ?? '';
+      return NextResponse.json({ content, model: 'gpt-4o-mini' });
+    } catch (err: any) {
+      console.error('[OpenAI] error:', err.message);
+    }
+  }
+
+  // ── No keys configured ───────────────────────────────────────────────────
   return NextResponse.json({
     content: [
-      '**⚠️ AI Assistant not configured yet.**',
+      '**⚠️ No AI provider configured.**',
       '',
-      'Add at least one of these to your `.env.local` and restart the server:',
+      'Add to your `.env.local` (free option first):',
       '',
-      '```',
-      'ANTHROPIC_API_KEY=sk-ant-api03-...',
+      '```env',
+      '# FREE — get at aistudio.google.com',
       'GOOGLE_GEMINI_API_KEY=AIzaSy...',
+      '',
+      '# Paid fallback — get at console.anthropic.com',
+      'ANTHROPIC_API_KEY=sk-ant-api03-...',
       '```',
       '',
-      'See the README for step-by-step setup instructions.',
+      'Then restart the server: `npm run dev`',
     ].join('\n'),
   });
 }
