@@ -1,6 +1,6 @@
 {
-  "name": "mlaithing",
-  "version": "0.2.0",
+  "name": "ai-ml-hub",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,19 +9,35 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "15.1.9",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
-    "lucide-react": "^0.400.0"
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@google/genai": "^0.7.0",
+    "@prisma/client": "^6.0.0",
+    "next": "15.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-syntax-highlighter": "^15.6.1",
+    "lucide-react": "^0.477.0",
+    "framer-motion": "^11.0.0",
+    "react-dropzone": "^14.3.5",
+    "react-markdown": "^9.0.1",
+    "remark-gfm": "^4.0.0",
+    "react-hot-toast": "^2.4.1",
+    "fuse.js": "^7.0.0",
+    "next-themes": "^0.4.6",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.10",
-    "tailwindcss": "^3.4.1",
-    "postcss": "^8.4.31",
-    "autoprefixer": "^10.4.16",
-    "typescript": "^5",
     "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18"
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/react-syntax-highlighter": "^15.5.13",
+    "typescript": "^5",
+    "tailwindcss": "^3.4.1",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8",
+    "eslint": "^8",
+    "eslint-config-next": "15.2.0",
+    "prisma": "^6.0.0"
   }
 }

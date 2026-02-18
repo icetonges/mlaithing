@@ -1,24 +1,42 @@
+import type { Metadata } from 'next';
 import './globals.css';
-import Sidebar from '@/components/Sidebar';
+import { Toaster } from 'react-hot-toast';
 
-export const metadata = {
-  title: 'MLAithing | AI Knowledge Hub',
-  description: 'Advanced repository for Agentic AI and ML Architectures',
+export const metadata: Metadata = {
+  title: 'AI/ML Knowledge Hub | Peter Shang',
+  description: 'Comprehensive AI/ML knowledge repository — fundamentals to production-ready implementations, LLM comparisons, prompt engineering, and agentic AI systems.',
+  keywords: ['AI', 'Machine Learning', 'LLM', 'Deep Learning', 'Python', 'Data Science'],
+  openGraph: {
+    title: 'AI/ML Knowledge Hub',
+    description: 'From fundamentals to production-ready AI',
+    type: 'website',
+  },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en">
-      <body className="bg-gray-50 text-gray-900 flex min-h-screen font-sans">
-        {/* Fixed Left Sidebar */}
-        <Sidebar />
-        
-        {/* Main Scrollable Area */}
-        <div className="flex-1 ml-0 md:ml-72 transition-all duration-300">
-          <main className="max-w-7xl mx-auto p-8 md:p-12">
-            {children}
-          </main>
-        </div>
+    <html lang="en" className="dark">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
+      <body className="noise grid-bg min-h-screen antialiased">
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: '#141428',
+              color: '#F0F0FF',
+              border: '1px solid rgba(139, 92, 246, 0.3)',
+              fontFamily: 'Syne, sans-serif',
+            },
+          }}
+        />
+        {children}
       </body>
     </html>
   );
