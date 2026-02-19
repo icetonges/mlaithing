@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from 'react-hot-toast';
+import { Analytics } from '@vercel/analytics/react'; // Added import
 
 export const metadata: Metadata = {
   title: 'AI/ML Knowledge Hub | Peter Shang',
@@ -44,6 +45,7 @@ export default function RootLayout({
           }}
         />
         {children}
+        <Analytics /> {/* Added component */}
       </body>
     </html>
   );
